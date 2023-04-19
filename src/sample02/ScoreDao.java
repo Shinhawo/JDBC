@@ -10,7 +10,7 @@ import java.util.List;
 
 import util.ConnUtils;
 
-// DB 엑세스를 전담하는 클래스
+// DB 엑세스를 전담하는 클래스. CRUD
 public class ScoreDao {
 
 	/**
@@ -20,10 +20,10 @@ public class ScoreDao {
 	 */
 	public void insertScore(Score score) throws SQLException {
 		//쿼리 정의
-		String sql = "inser into sample_scores "
-				+ "(student_no, student_name, kor_score, eng_score, math_score )"
+		String sql = "insert into sample_scores "
+				+ "(student_no, student_name, kor_score, eng_score, math_score ) "
 				+ "values "
-				+"(sample_score_seq.nextval, ?,?,?.?)";
+				+"(sample_student_seq.nextval, ?,?,?,?) ";
 		
 		// Connection 획득
 		Connection con = ConnUtils.getConnection();
@@ -44,7 +44,7 @@ public class ScoreDao {
 	
 	/**
 	 * SAMPLE_SCORES 테이블의 모든 성적정보를 반환한다. -> 조건 없음
-	 * @return 모든 성적정보
+	 * @return 모든 성적정보, 성적정보가 존재하지 않으면 빈 {@code List<Score>} 객체를 반환한다.
 	 * @throws SQLException 
 	 */
 	public List<Score> getAllScores() throws SQLException{
@@ -90,12 +90,46 @@ public class ScoreDao {
 	/**
 	 * 전달받은 학생의 성적정보를 SAMPLE_SCORES 테이블에서 조회해서 반환한다.
 	 * @param studentNo 학생번호
-	 * @return 성적정보
+	 * @return 성적정보, 성적정보가 존재하지 않으면 null을 반환한다.
+	 * @throws SQLException 
 	 */
-	public Score getScoreByStudentNo(int studentNo) {
+	public Score getScoreByStudentNo(int studentNo) throws SQLException {
 		
+		String sql = "select student_no, student_name, kor_score, eng_score, math_score, create_date "
+				+ "from sample_scores "
+				+ "where student_no = ? "; // ?에 학생정보가 전달되어야함
 		
-		return null;
+		Score score = null;
+		
+		Connection con = ConnUtils.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		
+		pstmt.setInt(1, studentNo);
+		ResultSet rs = pstmt.executeQuery();
+		
+		// 하나만 뽑을거니까 if도 됨
+		while(rs.next()) {
+			int no = rs.getInt("student_no");
+			String name = rs.getString("student_name");
+			int kor = rs.getInt("kor_score");
+			int eng = rs.getInt("eng_score");
+			int math = rs.getInt("math_score");
+			Date createDate = rs.getDate("create_date");
+			
+			score = new Score();
+			score.setStudentNo(no);
+			score.setSudentName(name);
+			score.setKor(kor);
+			score.setEng(eng);
+			score.setMath(math);
+			score.setCreateDate(createDate);
+		}
+		       
+		rs.close();
+		con.close();
+		pstmt.close();
+		                
+		return score; 
 	}
 	
 	/**

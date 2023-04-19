@@ -61,6 +61,11 @@ public class Score {
 		this.createDate = createDate;
 	}
 	
+	public int getTotalScore() {
+		return kor+eng+math;
+	}
 	
-	
+	public int getAverage() {
+		return getTotalScore()/3;
+	}
 }

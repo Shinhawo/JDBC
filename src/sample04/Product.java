@@ -70,5 +70,11 @@ public class Product {
 		this.createDate = createDate;
 	}
 	
-	
+	public int getDiscountPrice() {
+		return (int)(price*(1-discountRate));
+	}
+
+	public String getDiscountPercent() {
+		return (int)(discountRate*100) + "%";
+	}
 }
